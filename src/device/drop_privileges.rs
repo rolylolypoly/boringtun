@@ -5,6 +5,9 @@ use crate::device::errno_str;
 use crate::device::Error;
 use libc::*;
 
+#[cfg(any(target_os = "illumos", target_os = "solaris"))]
+use illumos_priv::*;
+
 pub fn get_saved_ids() -> Result<(uid_t, gid_t), Error> {
     // Get the user name of the sudoer
     let uname = unsafe { getlogin() };
@@ -24,7 +27,34 @@ pub fn get_saved_ids() -> Result<(uid_t, gid_t), Error> {
     Ok((saved_uid, saved_gid))
 }
 
+#[cfg(any(target_os = "illumos", target_os = "solaris"))]
+fn illumos_drop_privs() -> Result<(), Error> {
+    fn set_new_privs() -> std::io::Result<()> {
+        let set = PrivSet::new_basic()?;
+        set.delset(Privilege::ProcInfo)?;
+        set.delset(Privilege::ProcSession)?;
+        set.delset(Privilege::FileLinkAny)?;
+        set.delset(Privilege::ProcFork)?;
+        set.delset(Privilege::ProcExec)?;
+        // Allow the process to control IP interfaces -- needed to I_PUNLINK the tun device
+        set.addset(Privilege::SysIpConfig)?;
+        setppriv(PrivOp::Set, PrivPtype::Permitted, &set)?;
+        Ok(())
+    }
+    if set_new_privs().is_err() {
+        Err(Error::DropPrivileges(
+            "Failed to set permitted privilege set".to_owned(),
+        ))
+    } else {
+        Ok(())
+    }
+}
+
 pub fn drop_privileges() -> Result<(), Error> {
+    // XXX for now lets just drop privs and forget the setuid
+    #[cfg(any(target_os = "illumos", target_os = "solaris"))]
+    illumos_drop_privs()?;
+
     let (saved_uid, saved_gid) = get_saved_ids()?;
 
     if -1 == unsafe { setgid(saved_gid) } {

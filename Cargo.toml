@@ -26,6 +26,9 @@ clap = { version = "2.32.0", default-features=false, features = ["suggestions"] 
 [target.'cfg(target_os="android")'.dependencies]
 jni = "0.10.2"
 
+[target.'cfg(any(target_os="illumos", target_os="solaris"))'.dependencies]
+illumos-priv = "0.1.0"
+
 [lib]
 crate-type = ["lib", "staticlib", "dylib"]
 

@@ -9,6 +9,10 @@ use std::os::unix::io::RawFd;
 use std::ptr::null_mut;
 use std::time::Duration;
 
+// XXX Need extra ffi mappings not found in libc while we use epoll.rs
+#[cfg(any(target_os = "illumos", target_os = "solaris"))]
+use super::illumos_ffi::*;
+
 /// A return type for the EventPoll::wait() function
 pub enum WaitResult<'a, H> {
     /// Event triggered normally

@@ -60,9 +60,13 @@ impl UDPSocket {
             setsockopt(
                 self.fd,
                 SOL_SOCKET,
-                #[cfg(target_os = "linux")]
+                #[cfg(any(target_os = "linux", target_os = "solaris", target_os = "illumos"))]
                 SO_REUSEADDR, // On Linux SO_REUSEPORT won't prefer a connected IPv6 socket
-                #[cfg(not(target_os = "linux"))]
+                #[cfg(not(any(
+                    target_os = "linux",
+                    target_os = "solaris",
+                    target_os = "illumos"
+                )))]
                 SO_REUSEPORT,
                 &1u32 as *const u32 as *const c_void,
                 std::mem::size_of::<u32>() as u32,
@@ -106,7 +110,7 @@ impl UDPSocket {
         }
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(not(target_os = "linux"))]
     pub fn set_fwmark(&self, _: u32) -> Result<(), Error> {
         Ok(())
     }

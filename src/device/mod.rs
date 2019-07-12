@@ -20,13 +20,8 @@ pub mod poll;
 mod illumos_ffi;
 
 #[cfg(any(target_os = "illumos", target_os = "solaris"))]
-#[path = "epoll.rs"]
+#[path = "eventport.rs"]
 pub mod poll;
-
-// XXX convert this to event port after we get the tun working
-//#[cfg(any(target_os = "illumos", target_os = "solaris"))]
-//#[path = "eventport.rs"]
-//pub mod poll;
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 #[path = "tun_darwin.rs"]

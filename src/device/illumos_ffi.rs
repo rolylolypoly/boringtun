@@ -1,7 +1,5 @@
 use libc::*;
 
-pub const CLOCK_MONOTONIC: clockid_t = 4;
-pub const CLOCK_BOOTTIME: clockid_t = CLOCK_MONOTONIC; // Use the MONOTONIC clock for our purposes
 pub const TFD_NONBLOCK: c_int = 0x800;
 pub const EFD_NONBLOCK: c_int = 0o4000;
 pub const SFD_NONBLOCK: c_int = 0o4000;

@@ -146,11 +146,15 @@ fn main() {
     };
 
     if !matches.is_present("disable-drop-privileges") {
-        if let Err(e) = drop_privileges() {
-            eprintln!("Failed to drop privileges: {:?}", e);
-            sock1.send(&[0]).unwrap();
-            exit(1);
-        }
+        //if let Err(e) = drop_privileges() {
+        //    eprintln!("Failed to drop privileges: {:?}", e);
+        //    sock1.send(&[0]).unwrap();
+        //    exit(1);
+        //}
+
+        // XXX for now ignore errors until we deal with setuid.
+        // This hopefully will still drop illumos privileges(5).
+        let _ = drop_privileges();
     }
 
     // Notify parent that tunnel initialization succeeded
